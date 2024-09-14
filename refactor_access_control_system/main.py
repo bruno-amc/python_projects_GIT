@@ -7,6 +7,7 @@ from show_registered_employees import window_to_show_registered_employees
 from search_registered_employee import window_search_register
 from change_employee_status import window_for_changing_employee_status
 from access_control import process_register_number
+from sectors import botao_gerenciar_setores_main
 
 def init_aplication():
     creat_tables() #create tables when the aplication is started
@@ -27,7 +28,9 @@ def init_aplication():
     espaco = Label(window, text="", width=10, height=2) # space / espaço em branco para afastar o botão do campo de input
     botao_novos_usuarios = Button(window, text="Cadastrar Nova Pessoa",command=open_window_register_new_employees )
     resultado = tk.Label(window, text="")
-    botao_lista_usuarios_cadastrados = Button(window, text="Exibir usuários cadastrados", command=window_to_show_registered_employees )#command=janela_para_exibir_lista_cadastros
+    botao_lista_usuarios_cadastrados = Button(window, text="Exibir usuários cadastrados", command=window_to_show_registered_employees )
+    botao_gerenciar_setores = Button(window, text="Gerenciar Setores", command=botao_gerenciar_setores_main )#command=janela_para_exibir_lista_cadastros
+
     resultado2 = tk.Label(window, text="")
     
 
@@ -50,6 +53,7 @@ def init_aplication():
     botao_lupa_pesquisar.pack() # botão da lupa para pesquisar no cadastro
     rotulo_botao_ativar_inativar.pack()
     botao_inativar_ativar_usuario.pack() # botão para mudar status dos usuarios
+    botao_gerenciar_setores.pack() # botão para gerenciar os setores cadastrados
     resultado2.pack()
 
     window.mainloop()
