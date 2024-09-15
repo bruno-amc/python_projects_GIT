@@ -61,26 +61,30 @@ def remove_sector(setor, resultado):
     conexao.close()
 
 
-def edit_sector(id, new_name): #não usado ainda
+def edit_sector(sector_original_name, sector_new_name, resultado):
     conexao = connect_db()
     cursor = conexao.cursor()
 
-    cursor.execute('UPDATE sectors SET sector = ? WHERE id = ?', (new_name, id))
-    conexao.commit()
+    cursor.execute('SELECT * FROM sectors WHERE sector = ?',(sector_original_name,))
+    setor_existente = cursor.fetchone()
+    if setor_existente:
+        cursor.execute('UPDATE sectors SET sector = ? WHERE sector = ?', (sector_new_name, sector_original_name))
+        conexao.commit()
+        resultado.config(text=f"Sector name '{sector_original_name}'\n updated to '{sector_new_name}'.")
+    else:
+        resultado.config(text="Error: Sector doesn't exists!")
     conexao.close()
 
-    print(f"Setor com id {id} foi atualizado para {new_name}.")
 
-
-def list_employees_by_sector(setor_id): #não usado ainda
+def list_employees_by_sector(): 
     conexao = connect_db()
     cursor = conexao.cursor()
 
-    cursor.execute('SELECT * FROM employees WHERE setor_id = ?', (setor_id,))
-    employees = cursor.fetchall()
+    cursor.execute('SELECT * FROM employees WHERE status = 1 ORDER BY setor_id')
+    employees_by_sector = cursor.fetchall()
 
     conexao.close()
-    return employees
+    return employees_by_sector
 
 ## CÓDIGO ABAIXO REFERENTE AO BOTÃO DE GERENCIAR SETORES DA APLICAÇÃO / CODE FOR THE MANAGE SECTORS BUTTON FROM THE MAIN.PY  ##
 
@@ -96,9 +100,9 @@ def botao_gerenciar_setores_main():
     botao_remove_sectors = Button(janela_gerenciar_setores, text="Remove Sectors",
                            command=window_remove_sector)
     botao_edit_sectors = Button(janela_gerenciar_setores, text="Edit Sectors",
-                           command=pular)
+                           command=window_edit_sector)
     botao_list_employees_by_sectors = Button(janela_gerenciar_setores, text="List Employees By Sector",
-                           command=pular)
+                           command=window_list_employees_by_sector)
 
     botao_fechar = Button(janela_gerenciar_setores, text="Fechar",
                            command=janela_gerenciar_setores.destroy)
@@ -157,10 +161,6 @@ def window_list_sector():
     botao_fechar = tk.Button(window_list_sector, text="Fechar", command=window_list_sector.destroy)
     botao_fechar.pack()
 
-    
-
-
-
 
 def window_remove_sector():
     window_remove_sector = Toplevel()
@@ -186,7 +186,52 @@ def window_remove_sector():
     botao_fechar.pack() 
 
 
-def pular():
-    pass
+
+def window_edit_sector():
+    window_edit_sector = Toplevel()
+    window_edit_sector.title("Edit Sector")
+
+    rotulo_edit_sector_original_name = tk.Label(window_edit_sector, text="Sector to be edited:")
+    rotulo_edit_sector_new_name = tk.Label(window_edit_sector, text="New sector name:")
+    botao_edit_sector = Button(window_edit_sector, text="Edit Sector",
+                           command=lambda: edit_sector(input_sector_original_name.get(), input_sector_new_name.get(), resultado) )
+    
+    botao_fechar = Button(window_edit_sector, text="Fechar",
+                           command=window_edit_sector.destroy)
+    input_sector_original_name = tk.Entry(window_edit_sector)
+    input_sector_new_name = tk.Entry(window_edit_sector)
 
 
+    espaco = Label(window_edit_sector, text="", width=10, height=2) # space
+    resultado = tk.Label(window_edit_sector, text="")
+
+    espaco.pack()
+    rotulo_edit_sector_original_name.pack()
+    input_sector_original_name.pack()
+    espaco.pack()
+    rotulo_edit_sector_new_name.pack()
+    input_sector_new_name.pack()
+    botao_edit_sector.pack()
+    resultado.pack()
+    botao_fechar.pack() 
+
+def window_list_employees_by_sector():
+    window_list_employees_sector = Toplevel()
+    window_list_employees_sector.title("List of employees by Sectors")
+    texto_dados = tk.Text(window_list_employees_sector)
+    texto_dados.pack()
+
+    list_of_all_employees_by_sectors = list_employees_by_sector()
+
+    if list_of_all_employees_by_sectors:  # Verifica se há empregados/setores no banco de dados
+        for _, matricula, nome, sector_name, _, _ in list_of_all_employees_by_sectors: #usamos o "_" para indicar que não será usado o ID dos setores
+            texto_dados.insert(tk.END, f"{matricula} *** {nome} *** {sector_name}\n")
+    else:
+        # Se não houver dados, exibe uma mensagem informando isso
+        texto_dados.insert(tk.END, "Nenhum funcionário cadastrado.\n")
+
+     # Desativar a edição do widget de texto para tornar o conteúdo somente leitura
+    texto_dados.config(state=tk.DISABLED)
+    # Botão para fechar a janela
+    botao_fechar = tk.Button(window_list_sector, text="Fechar", command=window_list_sector.destroy)
+    botao_fechar.pack()

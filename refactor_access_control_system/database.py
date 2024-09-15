@@ -17,7 +17,7 @@ def creat_tables():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             matricula TEXT UNIQUE,                 
             nome TEXT NOT NULL,
-            setor_id INTEGER,
+            setor_id TEXT NOT NULL,
             idade INTEGER,
             status INTEGER,
             FOREIGN KEY(setor_id) REFERENCES setores(id)                   
